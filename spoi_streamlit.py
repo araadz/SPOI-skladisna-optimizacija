@@ -223,7 +223,7 @@ with tab1:
                 params = best_params
                 st.success("Optimizacija parametara završena")
 
-            st.info(" Idi na tabove **Rezultati** i **Grafici**")
+                st.info(" Idi na tabove **Rezultati** i **Grafici**")
             
         except Exception as e:
             st.error(f" Greška: {e}")
