@@ -201,7 +201,18 @@ with tab1:
         progress.progress(20)
         
         try:
+            if AUTO_TUNE:
+                with st.spinner("🤖 Optimiziram parametre..."):
+                    best_params, best_score = model.optimize_parameters(
+                        st.session_state['df_raw'],
+                        n_trials=N_TRIALS
+                    )
+                params = best_params
+                st.success("✅ Parametri optimizirani")
+            
             results = model.optimize(st.session_state['df_raw'], params)
+
+
             progress.progress(90)
             
             st.session_state['results'] = results
