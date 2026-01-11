@@ -64,8 +64,8 @@ with st.sidebar:
     N_PICKS = st.number_input("Pickova", 100, 2000, 1000, 100)
 
     st.markdown("---")
-AUTO_TUNE = st.checkbox("🤖 Automatski optimizuj parametre")
-N_TRIALS = st.slider("Broj iteracija (auto)", 5, 50, 20)
+    AUTO_TUNE = st.checkbox("🤖 Automatski optimizuj parametre")
+    N_TRIALS = st.slider("Broj iteracija (auto)", 5, 50, 20)
 
     
     st.markdown("---")
