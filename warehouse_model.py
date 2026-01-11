@@ -220,8 +220,10 @@ def optimize_parameters(df, n_trials=20, base_params=None, progress_callback=Non
             else:
                 params[k] = np.random.uniform(lo, hi)
 
-        r = optimize(df, params)
-        score = r['opt_utils'].sum()
+        df_p = prepare_data(df)
+        df_pos = df_p[['H','V','E']].reset_index(drop=True)
+        U = generate_utility_matrix(df_p, df_pos, params)
+        score = U.sum()
 
         if score > best_score:
             best_score = score
