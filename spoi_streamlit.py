@@ -101,13 +101,15 @@ with st.sidebar:
         disabled=LOCKED
     )
 
-    N_PICKS = st.number_input(
-        "Pickova",
-        100, 2000,
-        500,
-        100)
+   N_TRIALS = st.slider(
+    "Broj iteracija (auto)",
+    5, 50,
+    20,
+    disabled=not AUTO_TUNE
+)
     
-
+if not AUTO_TUNE:
+    st.caption("Broj iteracija se definiše samo kod automatske optimizacije.")
     
 
     st.markdown("---")
