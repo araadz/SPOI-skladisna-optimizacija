@@ -189,44 +189,56 @@ with tab1:
     st.markdown("---")
     st.header(" Optimizacija")
     
-    if st.button(" OPTIMIZIRAJ", type="primary", use_container_width=True):
+   if st.button(" OPTIMIZIRAJ", type="primary", use_container_width=True):
         if 'data_loaded' not in st.session_state:
-            st.warning(" Prvo uploadaj Excel fajl!")
+            st.warning("Prvo uploadaj Excel fajl!")
             st.stop()
-        
+    
         progress = st.progress(0)
         status = st.empty()
-        
-        status.text(" Pokretanje optimizacije")
-        progress.progress(20)
-        
+    
+        status.text("Pokretanje optimizacije")
+        progress.progress(10)
+    
         try:
-           if AUTO_TUNE:
+            if AUTO_TUNE:
                 st.subheader("Optimizacija parametara")
-            
+    
                 progress_bar = st.progress(0)
                 iter_text = st.empty()
                 best_text = st.empty()
-            
+    
                 def progress_callback(i, total, best_score):
                     progress_bar.progress(i / total)
                     iter_text.markdown(f"**Iteracija:** {i} / {total}")
                     best_text.markdown(f"**Najbolji utility do sada:** {best_score:.3f}")
-            
+    
                 with st.spinner("Optimiziram parametre..."):
                     best_params, best_score = model.optimize_parameters(
                         st.session_state['df_raw'],
                         n_trials=N_TRIALS,
                         progress_callback=progress_callback
                     )
-            
+    
                 params = best_params
                 st.success("Optimizacija parametara završena")
-
-                st.info(" Idi na tabove **Rezultati** i **Grafici**")
-            
+    
+            status.text("Pokrećem ILP optimizaciju rasporeda...")
+            progress.progress(70)
+    
+            results = model.optimize(st.session_state['df_raw'], params)
+    
+            st.session_state['results'] = results
+            st.session_state['optimized'] = True
+    
+            progress.progress(100)
+            status.text("Optimizacija završena")
+    
+            st.success("Gotovo! Idi na tabove Rezultati i Grafici")
+    
         except Exception as e:
-            st.error(f" Greška: {e}")
+            st.error(f"Greška: {e}")
+
 
 # ============================================================
 # TAB 2
