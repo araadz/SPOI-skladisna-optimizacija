@@ -96,11 +96,11 @@ with st.sidebar:
         1,
         disabled=LOCKED)
 
-   N_TRIALS = st.slider(
-    "Broj iteracija (auto)",
-    5, 50,
-    20,
-    disabled=not AUTO_TUNE)
+    N_TRIALS = st.slider(
+        "Broj iteracija (auto)",
+        5, 50,
+        20,
+        disabled=not AUTO_TUNE)
     
 if not AUTO_TUNE:
     st.caption("Broj iteracija se definiše samo kod automatske optimizacije.")
