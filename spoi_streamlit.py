@@ -25,8 +25,8 @@ import warehouse_model as model
 # PAGE CONFIG
 # ============================================================
 st.set_page_config(
-    page_title="SPOI Warehouse Optimization",
-    page_icon="🏭",
+    page_title="SPOI Optimizacija skladišnih pozicija",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -44,7 +44,7 @@ st.markdown("""
 # ============================================================
 # HEADER
 # ============================================================
-st.markdown('<p class="main-header">🏭 SPOI Warehouse Optimization</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-header"> Optimizacija skladišta</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-header">Optimizacija rasporeda artikala korištenjem ILP solvera</p>', unsafe_allow_html=True)
 
 # ============================================================
@@ -64,7 +64,7 @@ with st.sidebar:
     N_PICKS = st.number_input("Pickova", 100, 2000, 1000, 100)
 
     st.markdown("---")
-    AUTO_TUNE = st.checkbox("🤖 Automatski optimizuj parametre")
+    AUTO_TUNE = st.checkbox(" Automatski optimizuj parametre")
     N_TRIALS = st.slider("Broj iteracija (auto)", 5, 50, 20)
 
     
@@ -87,28 +87,47 @@ tab1, tab2, tab3 = st.tabs(["📂 Učitaj & Optimiziraj", "📊 Rezultati", "�
 # TAB 1
 # ============================================================
 with tab1:
-    st.header("📂 Učitavanje Podataka")
+    st.header(" Upload Excel Fajla")
     
-    FILE_PATH = "SPOI_DATA (1) new.xlsx"
+    # Upute
+    with st.expander(" Upute za pripremu fajla", expanded=False):
+        st.markdown("""
+        ### Obavezne kolone:
+        | Kolona | Opis |
+        |--------|------|
+        | **H** | Horizontalna pozicija (1-15) |
+        | **V** | Vertikalni nivo (1-5) |
+        | **E** | Dubina u regalu (1-4) |
+        | **izlaz** | Potražnja artikla |
+        
+        ### Opcionalno:
+        | Kolona | Opis |
+        |--------|------|
+        | **TEZINA_KAT** | Kategorija težine (1-8) |
+        """)
     
-    st.info(f"📁 Tražim fajl: **{FILE_PATH}**")
-    st.warning("⚠️ Stavi fajl u isti folder kao aplikaciju!")
+    # UPLOAD
+    uploaded_file = st.file_uploader(
+        " Odaberi Excel fajl (.xlsx)",
+        type=['xlsx', 'xls'],
+        help="Upload Excel sa kolonama: H, V, E, izlaz"
+    )
     
-    if st.button("📂 UČITAJ PODATKE", use_container_width=True):
+    if uploaded_file is not None:
         try:
-            df = pd.read_excel(FILE_PATH)
+            df = pd.read_excel(uploaded_file)
             
             # Validacija
             missing = [c for c in ['H', 'V', 'E', 'izlaz'] if c not in df.columns]
             if missing:
-                st.error(f"❌ Nedostaju kolone: {missing}")
+                st.error(f"Nedostaju kolone: {missing}")
                 st.stop()
             
-            # Pripremi podatke koristeći model
+            # Pripremi podatke
             df = model.prepare_data(df)
             n = len(df)
             
-            st.success(f"✅ Učitano **{n}** artikala")
+            st.success(f" Učitan file **{n}** artikala")
             
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("H", f"{int(df['H'].min())} - {int(df['H'].max())}")
@@ -119,46 +138,41 @@ with tab1:
             st.session_state['df_raw'] = df
             st.session_state['data_loaded'] = True
             
-            with st.expander("👀 Pregled"):
+            with st.expander(" Pregled podataka"):
                 st.dataframe(df.head(15), use_container_width=True)
                 
-        except FileNotFoundError:
-            st.error(f"❌ **{FILE_PATH}** nije pronađen!")
         except Exception as e:
-            st.error(f"❌ Greška: {e}")
+            st.error(f" Greška: {e}")
     
     st.markdown("---")
-    st.header("🚀 Optimizacija")
+    st.header(" Optimizacija")
     
-    if st.button("🎯 OPTIMIZIRAJ", type="primary", use_container_width=True):
+    if st.button(" OPTIMIZIRAJ", type="primary", use_container_width=True):
         if 'data_loaded' not in st.session_state:
-            st.warning("⚠️ Prvo učitaj podatke!")
+            st.warning(" Prvo uploadaj Excel fajl!")
             st.stop()
         
         progress = st.progress(0)
         status = st.empty()
         
-        status.text("⏳ Pokrećem optimizaciju...")
+        status.text(" Pokretanje optimizacije")
         progress.progress(20)
         
-        # Pozovi model
         try:
             results = model.optimize(st.session_state['df_raw'], params)
             progress.progress(90)
             
-            # Spremi rezultate
             st.session_state['results'] = results
             st.session_state['optimized'] = True
             
             progress.progress(100)
-            status.text("✅ Završeno!")
+            status.text("Završeno!")
             
-            st.balloons()
-            st.success(f"🎯 Poboljšanje: **+{results['improvement']:.2f}%**")
-            st.info("👉 Idi na tabove **Rezultati** i **Grafici**")
+            st.success(f"Poboljšanje: **+{results['improvement']:.2f}%**")
+            st.info(" Idi na tabove **Rezultati** i **Grafici**")
             
         except Exception as e:
-            st.error(f"❌ Greška: {e}")
+            st.error(f" Greška: {e}")
 
 # ============================================================
 # TAB 2
