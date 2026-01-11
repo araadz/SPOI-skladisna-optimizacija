@@ -61,7 +61,12 @@ with st.sidebar:
     
     TAU = st.slider("τ - Temperatura", 2.0, 20.0, 8.0, 1.0)
     DEMAND_MULTIPLIER = st.slider("λ - Multiplikator", 5, 30, 15, 1)
-    N_PICKS = st.number_input("Pickova", 100, 2000, 500, 100)
+    N_PICKS = st.number_input("Pickova", 100, 2000, 1000, 100)
+
+    st.markdown("---")
+AUTO_TUNE = st.checkbox("🤖 Automatski optimizuj parametre")
+N_TRIALS = st.slider("Broj iteracija (auto)", 5, 50, 20)
+
     
     st.markdown("---")
     st.latex(r"C = \alpha H + \beta \max(0,V-2) + \gamma(4-E)")
