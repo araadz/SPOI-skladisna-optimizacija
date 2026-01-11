@@ -97,7 +97,7 @@ with st.sidebar:
         disabled=LOCKED)
 
     st.markdown("---")
-    N_PICKS = st.number_input("Pickova", 100, 2000, 500, 100)
+    N_PICKS = st.number_input("Pickova", 100, 5000, 1000, 100)
     st.markdown("---")
 
     N_TRIALS = st.slider(
