@@ -102,8 +102,8 @@ with st.sidebar:
 
     N_TRIALS = st.slider(
         "Broj iteracija (auto)",
-        5, 50,
-        20,
+        1, 15,
+        8,
         disabled=not AUTO_TUNE)
     
     if not AUTO_TUNE:
