@@ -105,7 +105,7 @@ with st.sidebar:
         disabled=not AUTO_TUNE)
     
     if not AUTO_TUNE:
-    st.caption("Broj iteracija se definiše samo kod automatske optimizacije.")
+        st.caption("Broj iteracija se definiše samo kod automatske optimizacije.")
 
     st.markdown("---")
     st.latex(r"C = \alpha H + \beta \max(0,V-2) + \gamma(4-E)")
