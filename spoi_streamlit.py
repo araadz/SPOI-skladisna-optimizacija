@@ -51,26 +51,73 @@ st.markdown('<p class="sub-header">Optimizacija rasporeda artikala korištenjem 
 # SIDEBAR
 # ============================================================
 with st.sidebar:
-    st.header("⚙️ Parametri")
-    
-    COST_A = st.slider("α - Horizontalna (H)", 0.5, 5.0, 2.0, 0.5)
-    COST_B = st.slider("β - Vertikalna (V>2)", 1.0, 10.0, 5.0, 0.5)
-    COST_C = st.slider("γ - Dubina (E)", 0.5, 5.0, 2.0, 0.5)
-    
-    st.markdown("---")
-    
-    TAU = st.slider("τ - Temperatura", 2.0, 20.0, 8.0, 1.0)
-    DEMAND_MULTIPLIER = st.slider("λ - Multiplikator", 5, 30, 15, 1)
-    N_PICKS = st.number_input("Pickova", 100, 2000, 1000, 100)
+    st.header("Parametri")
+
+    AUTO_TUNE = st.checkbox("Automatski optimizuj parametre")
+    LOCKED = AUTO_TUNE
+
+    if AUTO_TUNE:
+        st.info("Parametri su zaključani jer je uključena automatska optimizacija.")
+
+    COST_A = st.slider(
+        "α - Horizontalna (H)",
+        0.5, 5.0,
+        2.0,
+        0.5,
+        disabled=LOCKED
+    )
+
+    COST_B = st.slider(
+        "β - Vertikalna (V>2)",
+        1.0, 10.0,
+        5.0,
+        0.5,
+        disabled=LOCKED
+    )
+
+    COST_C = st.slider(
+        "γ - Dubina (E)",
+        0.5, 5.0,
+        2.0,
+        0.5,
+        disabled=LOCKED
+    )
 
     st.markdown("---")
-    AUTO_TUNE = st.checkbox(" Automatski optimizuj parametre")
+
+    TAU = st.slider(
+        "τ - Temperatura",
+        2.0, 20.0,
+        8.0,
+        1.0,
+        disabled=LOCKED
+    )
+
+    DEMAND_MULTIPLIER = st.slider(
+        "λ - Multiplikator",
+        5, 30,
+        15,
+        1,
+        disabled=LOCKED
+    )
+
+    N_PICKS = st.number_input(
+        "Pickova",
+        100, 2000,
+        500,
+        100)
+    )
+
+    
+
+    st.markdown("---")
+
     N_TRIALS = st.slider("Broj iteracija (auto)", 5, 50, 20)
 
-    
     st.markdown("---")
     st.latex(r"C = \alpha H + \beta \max(0,V-2) + \gamma(4-E)")
     st.latex(r"U = e^{-C/\tau} \cdot (1 + \lambda \frac{d}{d_{max}})")
+
 
 # Parametri dict
 params = {
@@ -178,10 +225,10 @@ with tab1:
 # TAB 2
 # ============================================================
 with tab2:
-    st.header("📊 Rezultati")
+    st.header("Rezultati")
     
     if 'optimized' not in st.session_state:
-        st.warning("⚠️ Prvo pokreni optimizaciju!")
+        st.warning("Prvo pokreni optimizaciju!")
     else:
         r = st.session_state['results']
         
@@ -193,9 +240,43 @@ with tab2:
         col4.metric("Weighted V", f"{r['opt_wV']:.2f}", f"-{r['v_reduction']:.1f}%", delta_color="inverse")
         
         st.markdown("---")
+
+        st.subheader("Korišteni parametri")
+
         
+        if 'AUTO_TUNE' in globals() and AUTO_TUNE:
+            hp = r['params']
+            mode = "Automatski optimizovani"
+        else:
+            hp = params
+            mode = "Ručno zadani (slideri)"
+        
+        hp_df = pd.DataFrame({
+            'Parametar': [
+                'α (COST_A)',
+                'β (COST_B)',
+                'γ (COST_C)',
+                'τ (TAU)',
+                'λ (DEMAND_MULTIPLIER)',
+                'N_PICKS'
+            ],
+            'Vrijednost': [
+                f"{hp['COST_A']:.2f}",
+                f"{hp['COST_B']:.2f}",
+                f"{hp['COST_C']:.2f}",
+                f"{hp['TAU']:.2f}",
+                f"{hp['DEMAND_MULTIPLIER']}",
+                f"{hp['N_PICKS']}"
+            ]
+        })
+        
+        st.caption(f"Način odabira parametara: **{mode}**")
+        st.dataframe(hp_df, use_container_width=True, hide_index=True)
+
+        st.markdown("---")
+
         # Tabela
-        st.subheader("📋 Usporedba")
+        st.subheader("Usporedba")
         comp = pd.DataFrame({
             'Metrika': ['Total Utility', 'Simulation Cost', 'Weighted H', 'Weighted V', 'Premješteno'],
             'Početno': [f"{r['init_utils'].sum():.2f}", f"{r['init_sim']:,.0f}", 
@@ -211,7 +292,7 @@ with tab2:
         st.markdown("---")
         
         # Top 10
-        st.subheader("📦 Top 10 Promjena")
+        st.subheader("Top 10 Promjena")
         df = r['df']
         df_pos = r['df_positions']
         opt = r['opt_assign']
@@ -233,7 +314,7 @@ with tab2:
         st.markdown("---")
         
         # Download
-        st.subheader("💾 Download")
+        st.subheader("Download")
         
         output_df = model.create_output_dataframe(r)
         
@@ -244,7 +325,7 @@ with tab2:
         buffer.seek(0)
         
         st.download_button(
-            "📥 Download Excel",
+            "Download Excel",
             data=buffer,
             file_name=f"SPOI_optimized_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -255,10 +336,10 @@ with tab2:
 # TAB 3
 # ============================================================
 with tab3:
-    st.header("📈 Grafici")
+    st.header("Grafici")
     
     if 'optimized' not in st.session_state:
-        st.warning("⚠️ Prvo pokreni optimizaciju!")
+        st.warning(" Prvo uploadaj fajl i pokreni optimizaciju!")
     else:
         r = st.session_state['results']
         df = r['df']
@@ -272,7 +353,7 @@ with tab3:
         xi = np.arange(n)
         
         # 1. Summary
-        st.subheader("1️⃣ Summary")
+        st.subheader(" Summary")
         fig, ax = plt.subplots(2, 2, figsize=(12, 8))
         for a, y, t, c in [(ax[0,0], [r['init_utils'].sum(), r['opt_utils'].sum()], 'Total Utility', C_O),
                           (ax[0,1], [r['init_sim'], r['opt_sim']], 'Simulation Cost', C_I),
@@ -286,77 +367,49 @@ with tab3:
         st.pyplot(fig)
         plt.close()
         
-        st.markdown("---")
         
-        # 2. Utility
-        st.subheader("2️⃣ Utility po Artiklima")
-        fig, ax = plt.subplots(figsize=(14, 5))
-        ax.plot(xi, r['init_utils'][sidx], c=C_I, label='Početno')
-        ax.plot(xi, r['opt_utils'][sidx], c=C_O, label='Optimizirano')
-        ax.fill_between(xi, r['init_utils'][sidx], r['opt_utils'][sidx],
-                       where=r['opt_utils'][sidx] > r['init_utils'][sidx], alpha=0.3, color=C_O)
-        ax.set_xlabel('Artikli (po potražnji)')
-        ax.set_ylabel('Utility')
-        ax.legend()
-        ax.grid(alpha=0.3)
+        st.markdown("---")
+        # Pick-weighted distribucija po V i H pozicijama
+        st.subheader("Pick-weighted distribucija po V i H pozicijama")
+
+        df = r['df']
+        df_pos = r['df_positions']
+        opt = r['opt_assign']
+        izlaz = df['izlaz'].values
+        total_izlaz = izlaz.sum()
+        init_V = df['V'].values
+        init_H = df['H'].values
+        opt_V = np.array([df_pos.iloc[opt[i]]['V'] for i in range(len(df))])
+        opt_H = np.array([df_pos.iloc[opt[i]]['H'] for i in range(len(df))])
+        V_levels = sorted(df['V'].unique())
+        H_levels = sorted(df['H'].unique())
+        init_V_share = [izlaz[init_V == v].sum() / total_izlaz for v in V_levels]
+        opt_V_share  = [izlaz[opt_V  == v].sum() / total_izlaz for v in V_levels]
+        init_H_share = [izlaz[init_H == h].sum() / total_izlaz for h in H_levels]
+        opt_H_share  = [izlaz[opt_H  == h].sum() / total_izlaz for h in H_levels]
+        fig, ax = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
+        ax[0].plot(V_levels, init_V_share, marker='o', label='Početno')
+        ax[0].plot(V_levels, opt_V_share, marker='o', label='Optimizirano')
+        ax[0].set_xlabel("Vertikalni nivo (V)")
+        ax[0].set_ylabel("Udio pickova")
+        ax[0].set_title("Distribucija pickova po V nivoima")
+        ax[0].grid(alpha=0.3)
+        ax[0].legend()
+        ax[1].plot(H_levels, init_H_share, marker='o', label='Početno')
+        ax[1].plot(H_levels, opt_H_share, marker='o', label='Optimizirano')
+        ax[1].set_xlabel("Horizontalna pozicija (H)")
+        ax[1].set_title("Distribucija pickova po H zonama")
+        ax[1].grid(alpha=0.3)
+        ax[1].legend()
         plt.tight_layout()
         st.pyplot(fig)
         plt.close()
-        
+
         st.markdown("---")
         
-        # 3 & 4. H i V
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("3️⃣ H po Artiklima")
-            fig, ax = plt.subplots(figsize=(7, 4))
-            h_i = np.array([df.iloc[i]['H'] for i in sidx])
-            h_o = np.array([df_pos.iloc[opt[i]]['H'] for i in sidx])
-            ax.plot(xi, h_i, c=C_I, label='Početno')
-            ax.plot(xi, h_o, c=C_O, label='Optimizirano')
-            ax.legend(); ax.grid(alpha=0.3); ax.set_ylim(0, 16)
-            plt.tight_layout()
-            st.pyplot(fig)
-            plt.close()
-        
-        with col2:
-            st.subheader("4️⃣ V po Artiklima")
-            fig, ax = plt.subplots(figsize=(7, 4))
-            v_i = np.array([df.iloc[i]['V'] for i in sidx])
-            v_o = np.array([df_pos.iloc[opt[i]]['V'] for i in sidx])
-            ax.plot(xi, v_i, c=C_I, label='Početno')
-            ax.plot(xi, v_o, c=C_O, label='Optimizirano')
-            ax.axhline(2, c='gold', ls='--', lw=2, label='Zlatna zona')
-            ax.legend(); ax.grid(alpha=0.3); ax.set_ylim(0, 6)
-            plt.tight_layout()
-            st.pyplot(fig)
-            plt.close()
-        
-        st.markdown("---")
-        
-        # 5. Heatmap
-        st.subheader("5️⃣ Heatmap Potražnje")
-        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-        mh, mv = int(df['H'].max()), 5
-        hm_b, hm_a = np.zeros((mv, mh)), np.zeros((mv, mh))
-        for i in range(n):
-            hm_b[int(df.iloc[i]['V'])-1, int(df.iloc[i]['H'])-1] += izlaz[i]
-            j = opt[i]
-            hm_a[int(df_pos.iloc[j]['V'])-1, int(df_pos.iloc[j]['H'])-1] += izlaz[i]
-        axes[0].imshow(hm_b, cmap='Reds', aspect='auto')
-        axes[0].set_title('POČETNO', fontweight='bold')
-        axes[1].imshow(hm_a, cmap='Greens', aspect='auto')
-        axes[1].set_title('OPTIMIZIRANO', fontweight='bold')
-        for a in axes: a.set_xlabel('H'); a.set_ylabel('V')
-        plt.tight_layout()
-        st.pyplot(fig)
-        plt.close()
-        
-        st.markdown("---")
         
         # 6. Cumulative
-        st.subheader("6️⃣ Kumulativni Utility")
+        st.subheader(" Kumulativni Utility")
         fig, ax = plt.subplots(figsize=(14, 5))
         cum_i = np.cumsum(r['init_utils'][sidx])
         cum_o = np.cumsum(r['opt_utils'][sidx])
@@ -369,8 +422,55 @@ with tab3:
         st.pyplot(fig)
         plt.close()
 
-# ============================================================
+
+        st.markdown("---")
+
+
+        st.subheader(" Poboljšanje Utility po Artiklima (%)")
+        fig, ax = plt.subplots(figsize=(14, 5))
+        improvement_pct = (r['opt_utils'][sidx] - r['init_utils'][sidx]) / np.maximum(r['init_utils'][sidx], 0.001) * 100
+        ax.plot(xi, improvement_pct, c=C_O, lw=1.5)
+        ax.fill_between(xi, 0, improvement_pct, where=improvement_pct > 0, alpha=0.4, color=C_O, label='Poboljšanje')
+        ax.fill_between(xi, 0, improvement_pct, where=improvement_pct < 0, alpha=0.4, color=C_I, label='Pogoršanje')
+        ax.axhline(0, c='black', lw=1)
+        ax.axhline(np.mean(improvement_pct), c=C_A, ls='--', lw=2, label=f'Prosjek: {np.mean(improvement_pct):.1f}%')
+        ax.set_xlabel('Artikli (po potražnji)')
+        ax.set_ylabel('Poboljšanje (%)')
+        ax.legend()
+        ax.grid(alpha=0.3)
+        plt.tight_layout()
+        st.pyplot(fig)
+        plt.close()
+
+        st.markdown("---")
+        
+        st.subheader("CDF Simulation Cost (po picku)")
+        np.random.seed(42)
+        df=r['df']
+        izlaz=df['izlaz'].values
+        total_izlaz=izlaz.sum()
+        probs=izlaz/total_izlaz if total_izlaz>0 else np.ones(len(df))/len(df)
+        init_costs=r['init_costs']
+        opt_costs=r['opt_costs']
+        picked=np.random.choice(len(df),size=r['params']['N_PICKS'],p=probs)
+        init_pick_costs=np.sort(init_costs[picked])
+        opt_pick_costs=np.sort(opt_costs[picked])
+        cdf=np.linspace(0,1,len(init_pick_costs))
+        fig,ax=plt.subplots(figsize=(8,5))
+        ax.plot(init_pick_costs,cdf,label='Početno')
+        ax.plot(opt_pick_costs,cdf,label='Optimizirano')
+        ax.set_xlabel("Cost po picku")
+        ax.set_ylabel("CDF")
+        ax.set_title("CDF distribucija simulation cost-a")
+        ax.legend()
+        ax.grid(alpha=0.3)
+        plt.tight_layout()
+        st.pyplot(fig)
+        plt.close()
+
+        st.markdown("---")
+
 # FOOTER
-# ============================================================
+
 st.markdown("---")
-st.markdown("<div style='text-align:center;color:#6B7280'>🏭 SPOI Warehouse Optimization</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center;color:#6B7280'> SPOI Optimizacija skladišnih pozicija</div>", unsafe_allow_html=True)
