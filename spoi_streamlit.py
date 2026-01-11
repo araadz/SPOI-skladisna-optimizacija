@@ -201,27 +201,28 @@ with tab1:
         progress.progress(20)
         
         try:
-            if AUTO_TUNE:
-                with st.spinner("🤖 Optimiziram parametre..."):
+           if AUTO_TUNE:
+                st.subheader("Optimizacija parametara")
+            
+                progress_bar = st.progress(0)
+                iter_text = st.empty()
+                best_text = st.empty()
+            
+                def progress_callback(i, total, best_score):
+                    progress_bar.progress(i / total)
+                    iter_text.markdown(f"**Iteracija:** {i} / {total}")
+                    best_text.markdown(f"**Najbolji utility do sada:** {best_score:.3f}")
+            
+                with st.spinner("Optimiziram parametre..."):
                     best_params, best_score = model.optimize_parameters(
                         st.session_state['df_raw'],
-                        n_trials=N_TRIALS
+                        n_trials=N_TRIALS,
+                        progress_callback=progress_callback
                     )
+            
                 params = best_params
-                st.success("✅ Parametri optimizirani")
-            
-            results = model.optimize(st.session_state['df_raw'], params)
+                st.success("Optimizacija parametara završena")
 
-
-            progress.progress(90)
-            
-            st.session_state['results'] = results
-            st.session_state['optimized'] = True
-            
-            progress.progress(100)
-            status.text("Završeno!")
-            
-            st.success(f"Poboljšanje: **+{results['improvement']:.2f}%**")
             st.info(" Idi na tabove **Rezultati** i **Grafici**")
             
         except Exception as e:
