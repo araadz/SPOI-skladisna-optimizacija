@@ -64,24 +64,21 @@ with st.sidebar:
         0.5, 5.0,
         2.0,
         0.5,
-        disabled=LOCKED
-    )
+        disabled=LOCKED)
 
     COST_B = st.slider(
         "β - Vertikalna (V>2)",
         1.0, 10.0,
         5.0,
         0.5,
-        disabled=LOCKED
-    )
+        disabled=LOCKED)
 
     COST_C = st.slider(
         "γ - Dubina (E)",
         0.5, 5.0,
         2.0,
         0.5,
-        disabled=LOCKED
-    )
+        disabled=LOCKED)
 
     st.markdown("---")
 
@@ -90,23 +87,20 @@ with st.sidebar:
         2.0, 20.0,
         8.0,
         1.0,
-        disabled=LOCKED
-    )
+        disabled=LOCKED)
 
     DEMAND_MULTIPLIER = st.slider(
         "λ - Multiplikator",
         5, 30,
         15,
         1,
-        disabled=LOCKED
-    )
+        disabled=LOCKED)
 
    N_TRIALS = st.slider(
     "Broj iteracija (auto)",
     5, 50,
     20,
-    disabled=not AUTO_TUNE
-)
+    disabled=not AUTO_TUNE)
     
 if not AUTO_TUNE:
     st.caption("Broj iteracija se definiše samo kod automatske optimizacije.")
