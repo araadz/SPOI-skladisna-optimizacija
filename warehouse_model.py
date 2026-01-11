@@ -205,17 +205,20 @@ PARAM_SPACE = {
     'DEMAND_MULTIPLIER': (5,30)
 }
 
-def optimize_parameters(df, n_trials=20, base_params=None):
+def optimize_parameters(df, n_trials=20, base_params=None, progress_callback=None):
     if base_params is None:
         base_params = DEFAULT_PARAMS.copy()
 
     best_score = -np.inf
     best_params = None
 
-    for _ in range(n_trials):
+    for i in range(1, n_trials + 1):
         params = base_params.copy()
-        for k,(lo,hi) in PARAM_SPACE.items():
-            params[k] = int(random.uniform(lo,hi)) if k=='DEMAND_MULTIPLIER' else random.uniform(lo,hi)
+        for k, (lo, hi) in PARAM_SPACE.items():
+            if k == 'DEMAND_MULTIPLIER':
+                params[k] = int(np.random.uniform(lo, hi))
+            else:
+                params[k] = np.random.uniform(lo, hi)
 
         r = optimize(df, params)
         score = r['opt_utils'].sum()
@@ -224,7 +227,11 @@ def optimize_parameters(df, n_trials=20, base_params=None):
             best_score = score
             best_params = params
 
+        if progress_callback is not None:
+            progress_callback(i, n_trials, best_score)
+
     return best_params, best_score
+
 
 # ============================================================
 # EXPORT
