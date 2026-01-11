@@ -189,7 +189,7 @@ with tab1:
     st.markdown("---")
     st.header(" Optimizacija")
     
-   if st.button(" OPTIMIZIRAJ", type="primary", use_container_width=True):
+    if st.button(" OPTIMIZIRAJ", type="primary", use_container_width=True):
         if 'data_loaded' not in st.session_state:
             st.warning("Prvo uploadaj Excel fajl!")
             st.stop()
