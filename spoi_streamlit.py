@@ -426,23 +426,6 @@ with tab3:
 
         st.markdown("---")
         
-        
-        # 6. Cumulative
-        st.subheader(" Kumulativni Utility")
-        fig, ax = plt.subplots(figsize=(14, 5))
-        cum_i = np.cumsum(r['init_utils'][sidx])
-        cum_o = np.cumsum(r['opt_utils'][sidx])
-        ax.plot(xi, cum_i, c=C_I, label=f'Početno ({cum_i[-1]:.1f})')
-        ax.plot(xi, cum_o, c=C_O, label=f'Optim. ({cum_o[-1]:.1f})')
-        ax.fill_between(xi, cum_i, cum_o, alpha=0.3, color=C_O)
-        ax.set_xlabel('Artikli'); ax.set_ylabel('Kumulativni Utility')
-        ax.legend(); ax.grid(alpha=0.3)
-        plt.tight_layout()
-        st.pyplot(fig)
-        plt.close()
-
-
-        st.markdown("---")
 
 
         st.subheader(" Poboljšanje Utility po Artiklima (%)")
