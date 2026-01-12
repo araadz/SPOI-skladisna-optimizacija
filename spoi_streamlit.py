@@ -329,6 +329,30 @@ with tab2:
                 'E': f"{int(df.iloc[idx]['E'])} → {int(df_pos.iloc[j]['E'])}"
             })
         st.dataframe(pd.DataFrame(top10), use_container_width=True, hide_index=True)
+         
+        st.markdown("---")
+
+        st.subheader("Sva premještanja artikala")
+
+        df=r['df']
+        df_pos=r['df_positions']
+        opt=r['opt_assign']
+        
+        all_moves=[]
+        for i in range(len(df)):
+            j=opt[i]
+            if j!=i:
+                naziv=df.iloc[i].get('Naziv artikla',f'#{i}')
+                if pd.isna(naziv): naziv=f'#{i}'
+                all_moves.append({
+                    'Naziv':str(naziv)[:25],
+                    'Potražnja':int(df.iloc[i]['izlaz']),
+                    'H':f"{int(df.iloc[i]['H'])} → {int(df_pos.iloc[j]['H'])}",
+                    'V':f"{int(df.iloc[i]['V'])} → {int(df_pos.iloc[j]['V'])}",
+                    'E':f"{int(df.iloc[i]['E'])} → {int(df_pos.iloc[j]['E'])}"
+                })
+        
+        st.dataframe(pd.DataFrame(all_moves),use_container_width=True,hide_index=True)
         
         st.markdown("---")
         
