@@ -7,7 +7,7 @@ Streamlit aplikacija koja koristi warehouse_model.py
 Potrebni fajlovi u istom folderu:
 - spoi_streamlit.py (ovaj fajl)
 - warehouse_model.py (model)
-- SPOI_DATA (1) new.xlsx (podaci)
+- SPOI_DATA Skladiste.xlsx (podaci)
 ================================================================================
 """
 
@@ -21,9 +21,9 @@ from datetime import datetime
 # Import modela
 import warehouse_model as model
 
-# ============================================================
+
 # PAGE CONFIG
-# ============================================================
+
 st.set_page_config(
     page_title="SPOI Optimizacija skladišnih pozicija",
     page_icon="",
@@ -31,9 +31,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ============================================================
+
 # CSS
-# ============================================================
+
 st.markdown("""
 <style>
     .main-header {font-size: 2.5rem; font-weight: bold; color: #1E3A8A; text-align: center;}
@@ -41,15 +41,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ============================================================
+
 # HEADER
-# ============================================================
+
 st.markdown('<p class="main-header"> Optimizacija skladišta</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-header">Optimizacija rasporeda artikala korištenjem ILP solvera</p>', unsafe_allow_html=True)
 
-# ============================================================
+
 # SIDEBAR
-# ============================================================
+
 with st.sidebar:
     st.header("Parametri")
 
@@ -120,14 +120,14 @@ params = {
     'TAU': TAU, 'DEMAND_MULTIPLIER': DEMAND_MULTIPLIER, 'N_PICKS': N_PICKS
 }
 
-# ============================================================
+
 # TABS
-# ============================================================
+
 tab1, tab2, tab3 = st.tabs(["📂 Učitaj fajl i optimiziraj", "📊 Rezultati", "📈 Grafici"])
 
-# ============================================================
+
 # TAB 1
-# ============================================================
+
 with tab1:
     st.header(" Upload Excel Fajla")
     
@@ -240,9 +240,9 @@ with tab1:
             st.error(f"Greška: {e}")
 
 
-# ============================================================
+
 # TAB 2
-# ============================================================
+
 with tab2:
     st.header("Rezultati")
     
@@ -375,9 +375,9 @@ with tab2:
             use_container_width=True
         )
 
-# ============================================================
+
 # TAB 3
-# ============================================================
+
 with tab3:
     st.header("Grafici")
     
